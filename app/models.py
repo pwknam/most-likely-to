@@ -1,13 +1,37 @@
-class User:
-    def __init__(self, name):
-       self._name = name
+from sqlalchemy import create_engine, func
+from sqlalchemy import ForeignKey, Table, Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.declarative import declarative_base
 
-    def get_name(self):
-        return self._name
+engine = create_engine('sqlite:///superlatives.db')
 
-    name = property(get_name)
+Base = declarative_base()
 
-class Superlative:
+
+class User(Base):
+    def __init__(self, username, password):
+       self._username = username
+       self._password = password
+       
+    
+    @property
+    def username(self):
+        return self._username
+    
+    @property
+    def password(self):
+        return self._password
+
+
+    __tablename__ = 'users'
+
+    id = Column(Integer(), primary_key=True)
+    username = Column(String())
+    password = Column(String())
+
+    superlatives_created = relationship('Superlative',)
+
+class Superlative(Base):
     def __init__(self, name, create_date):
         if isinstance(name, str):
            self._name = name
@@ -16,10 +40,17 @@ class Superlative:
         # if isinstance(create_date, str):
         #    self._create_date = SOME FUNCTION THAT PULLS IND ATE
 
-    def get_name(self):
+    @property
+    def name(self):
         return self._name
-        
-    name = property(get_name)
+
+    __tablename__ = 'superlatives'
+
+    id = Column(Integer(),primary_key=True)
+    name = Column(String())
+    user_id = Column(Integer(), ForeignKey('users.id'))
+
+
 
     # def get_create_date(self):
     #     return self._create_date
