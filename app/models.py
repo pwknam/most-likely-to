@@ -75,6 +75,7 @@ class Votes(Base):
 
     __tablename__ = 'votes'
 
+    id = Column(Integer(), primary_key=True)
     voter = Column(Integer(), ForeignKey('users.id'))
     superlative = Column(Integer(), ForeignKey('superlatives.id'))
     candidate = Column(Integer(), ForeignKey('users.id'))
