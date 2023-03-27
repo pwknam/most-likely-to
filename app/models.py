@@ -33,6 +33,14 @@ class User(Base):
     superlatives_voted = relationship('Votes', backref=backref('user'))
     # user_nominations = relationship('Votes', backref=backref('user'))
 
+class Nominees(Base):
+    __tablename__ = 'nominees'
+
+    id = Column(Integer(), primary_key=True)
+    name = Column(String())
+    
+    superlatives_nominated = relationship('Votes', backref=backref('nominees'))
+
 
 
 class Superlative(Base):
@@ -78,7 +86,7 @@ class Votes(Base):
     id = Column(Integer(), primary_key=True)
     voter_id = Column(Integer(), ForeignKey('users.id'))
     superlative_id = Column(Integer(), ForeignKey('superlatives.id'))
-    # candidate = Column(String(), ForeignKey('users.username'))
+    candidate = Column(String(), ForeignKey('nominees.id'))
     date_voted = Column(DateTime(), server_default=func.now())
 
 
