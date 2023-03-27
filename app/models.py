@@ -10,10 +10,10 @@ Base = declarative_base()
 
 class User(Base):
     def __init__(self, username, password):
+       self._id = None
        self._username = username
        self._password = password
-       
-    
+
     @property
     def username(self):
         return self._username
@@ -29,16 +29,19 @@ class User(Base):
     username = Column(String())
     password = Column(String())
 
-    superlatives_created = relationship('Superlative',)
+    superlatives_created = relationship('Superlative', backref='user')
+    superlatives_voted = relationship('Votes', backref='user')
+    user_nominations = relationship('Votes', backref='user')
+
+
 
 class Superlative(Base):
-    def __init__(self, name, create_date):
+    def __init__(self, name):
+        self._id = None
+        
         if isinstance(name, str):
            self._name = name
         else: print("Superlative must be a string")
-
-        # if isinstance(create_date, str):
-        #    self._create_date = SOME FUNCTION THAT PULLS IND ATE
 
     @property
     def name(self):
@@ -49,24 +52,31 @@ class Superlative(Base):
     id = Column(Integer(),primary_key=True)
     name = Column(String())
     user_id = Column(Integer(), ForeignKey('users.id'))
+    date_created = Column(DateTime(), server_default=func.now())
+    date_expired = Column(DateTime(), server_default=func.now() + 10000)
+
+    superlative_votes = relationship('Votes', backref='superlative')
 
 
 
-    # def get_create_date(self):
-    #     return self._create_date
-    # phone = property(get_create_date)
 
-class Votes:
+class Votes(Base):
     def __init__(self, superlative_id, candidate_id):
         self._superlative_id = superlative_id
         self._candidate_id = candidate_id
     
-    def get_superlative_id(self):
+    @property
+    def superlative_id(self):
         return self._superlative_id
-
-    superlative = property(get_superlative)
-
-    def get_candidate_id(self):
+    
+    @property
+    def candidate_id(self):
         return self._candidate_id
 
-    candidate_id = property(get_candidate_id)
+    __tablename__ = 'votes'
+
+    voter = Column(Integer(), ForeignKey('users.id'))
+    superlative = Column(Integer(), ForeignKey('superlatives.id'))
+    candidate = Column(Integer(), ForeignKey('users.id'))
+    date_voted = Column(DateTime(), server_default=func.now())
+
