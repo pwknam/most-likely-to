@@ -12,20 +12,20 @@ if __name__ == '__main__':
     # session.query(Superlative).delete()
     # session.query(Votes).delete()
     
-    user_1 = User("Kyushik", "pwkn")
+    user_1 = User(username = "Kyushik", password = "pwkn")
     session.add(user_1)
-    session.commit(user_1)
+    session.commit()
 
-    user_2 = User("Sally", "sk")
-    session.add(user_2)
-    session.commit(user_2)
+    # user_2 = User("Sally", "sk")
+    # session.add(user_2)
+    # session.commit(user_2)
 
-    user_3 = User("Michelle", "mc")
-    session.add(user_3)
-    session.commit(user_3)
+    # user_3 = User("Michelle", "mc")
+    # session.add(user_3)
+    # session.commit(user_3)
 
-    superlative_1 = Superlative("Most likely to become president")
+    superlative_1 = Superlative(name = "Most likely to become president")
     session.add(superlative_1)
-    session.commit(superlative_1)
+    session.commit()
 
 
