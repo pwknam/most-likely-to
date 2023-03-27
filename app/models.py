@@ -29,9 +29,9 @@ class User(Base):
     username = Column(String())
     password = Column(String())
 
-    superlatives_created = relationship('Superlative', backref='user')
-    superlatives_voted = relationship('Votes', backref='user')
-    user_nominations = relationship('Votes', backref='user')
+    # superlatives_created = relationship('Superlative', backref=backref('user'))
+    # superlatives_voted = relationship('Votes', foreign_keys='Votes.superlative', backref=backref('user'))
+    # user_nominations = relationship('Votes', foreign_keys='Votes.candidate', backref=backref('user'))
 
 
 
@@ -55,7 +55,7 @@ class Superlative(Base):
     date_created = Column(DateTime(), server_default=func.now())
     date_expired = Column(DateTime(), server_default=func.now() + 10000)
 
-    superlative_votes = relationship('Votes', backref='superlative')
+    # superlative_votes = relationship('Votes', backref=backref('superlative'))
 
 
 
@@ -80,4 +80,7 @@ class Votes(Base):
     superlative = Column(Integer(), ForeignKey('superlatives.id'))
     candidate = Column(Integer(), ForeignKey('users.id'))
     date_voted = Column(DateTime(), server_default=func.now())
+
+    superlative = relationship('Superlative', back_populates='votes')
+    candidate = relationship('User', back_populates='votes')
 
