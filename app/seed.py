@@ -10,57 +10,40 @@ if __name__ == '__main__':
 
     session.query(User).delete()
     session.query(Nominees).delete()
-    session.query(Superlative).delete()
-    session.query(Votes).delete()
+
+    people = [
+        {'username': "nick", 'password': 'n'},
+        {'username': "chrisc", 'password': 'c'},
+        {'username': "finn", 'password': 'f'},
+        {'username': "michelle", 'password': 'm'},
+        {'username': "bobby", 'password': 'b'},
+        {'username': "anson", 'password': 'a'},
+        {'username': "sally", 'password': 's'},
+        {'username': "kyushik", 'password': 'k'},
+        {'username': "jacob", 'password': 'j'},
+        {'username': "brett", 'password': 'b'},
+        {'username': "bill", 'password': 'b'},
+        {'username': "jack", 'password': 'j'},
+        {'username': "min", 'password': 'm'},
+        {'username': "valencia", 'password': 'v'},
+        {'username': "ian", 'password': 'i'},
+        {'username': "eshwar", 'password': 'e'},
+        {'username': "chrisw", 'password': 'w'},
+    ]
+
+    for person in people:
+        author = User(username = person['username'], password = person['password'])
+        session.add(author)
+        session.commit()
     
-    user_1 = User(username = "Kyushik", password = "pwkn")
-    session.add(user_1)
-    session.commit()
-
-    user_2 = User(username = "Michelle", password = "mc")
-    session.add(user_2)
-    session.commit()
-
-    user_3 = User(username = "Sally", password = "sk")
-    session.add(user_3)
-    session.commit()
-
-    nominee_1 = Nominees(name = "Kyushik")
-    session.add(nominee_1)
-    session.commit()
-
-    nominee_2 = Nominees(name = "Michelle")
-    session.add(nominee_2)
-    session.commit()
-
-    nominee_3 = Nominees(name = "Sally")
-    session.add(nominee_3)
-    session.commit()
+    for person in people:
+        nominee = Nominees(name = person['username'])
+        session.add(nominee)
+        session.commit()
 
 
-    superlative_1 = Superlative(name = "Most likely to become president.", author_id = 1)
-    session.add(superlative_1)
-    session.commit()
-
-    superlative_2 = Superlative(name = "Best dressed.", author_id = 2)
-    session.add(superlative_2)
-    session.commit()
-
-    superlative_3 = Superlative(name = "Smartest.", author_id = 3)
-    session.add(superlative_3)
-    session.commit()
 
 
-    vote_1 = Votes(voter_id = 1, superlative_id = 1, nominee_id = 3)
-    session.add(vote_1)
-    session.commit()
 
-    vote_2 = Votes(voter_id = 2, superlative_id = 2, nominee_id = 1)
-    session.add(vote_2)
-    session.commit()
-
-    vote_3 = Votes(voter_id = 3, superlative_id = 3, nominee_id = 2)
-    session.add(vote_3)
-    session.commit()
 
 
