@@ -12,31 +12,6 @@ from models import User, Nominees, Superlative, Votes
 
 
 #functions
-
-def type_superlative():
-    superlative = click.prompt('Please state your superlative: ', type=str)
-    click.echo(f"You have written: {superlative}. Here are the superlatives you can vote on:")
-    options = [f'{superlative}', "entry 2", "entry 3"]
-    terminal_menu = TerminalMenu(options)
-    menu_entry_index = terminal_menu.show()
-    # click.echo(f"You have written: {options[menu_entry_index]}!")
-
-    date_expired_str = '2023-04-8'
-    date_expired_format = datetime.strptime(date_expired_str, '%Y-%m-%d')
-    superlative_1 = Superlative(name = f'{superlative}', author_id = 1)
-    session.add(superlative_1)
-
-    # MY COMMIT ISNT WORKING FOR SOME REASON, PLZ HELP!
-    session.commit()
-
-    view_user_polls_created()
-
-
-def get_superlative():
-    click.echo("getting superlative...")
-    superlative = session.query(Superlative.name).all()
-    click.echo(superlative)
-
 def login():
     user_id = None
     typed_username = click.prompt('Please type your username: ', type=str)
@@ -55,16 +30,51 @@ def login():
     
 def options_list(logged_in_user_id):
     click.echo("What would you like to do?")
-    options = ["Create Superlative", "View Superlatives", "View My Superlatives", "View What I've Been Nominated For"]
+    options = ["Create Superlative", "View New Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
-    print(options[menu_entry_index])
+
+    # Switch statement based on user's selection
+    if menu_entry_index == 0:
+        create_superlative()
+    elif menu_entry_index == 1:
+        view_polls_user_not_voted()
+    elif menu_entry_index == 2:
+        view_user_polls_created(logged_in_user_id)
+    elif menu_entry_index == 3:
+        view_my_nominations()
     click.echo(f"You have chosen: {options[menu_entry_index]}!")
+
+def create_superlative():
+    superlative = click.prompt('Please state your superlative: ', type=str)
+    click.echo(f"You have written: {superlative}.")
+    superlative_1 = Superlative(name = f'{superlative}', author_id = 1)
+    session.add(superlative_1)
+    session.commit()
+
+    # TO DECIDE WHERE THIS SHOULD ACTUALLY POINT TO
+    options_list()
+
+
+def view_top_superlatives():
+
+    # TO FIX THIS TO IMPORT THE SUPERLATIVES AND THEN FILTER THEM
+    options = [f'{superlative}', "entry 2", "entry 3"]
+    terminal_menu = TerminalMenu(options)
+    menu_entry_index = terminal_menu.show()
+    click.echo(f"You have chosen: {options[menu_entry_index]}!")
+
+    # TO DECIDE WHERE THIS SHOULD ACTUALLY POINT TO
+    options_list()
+
+
+def get_superlative():
+    click.echo("getting superlative...")
+    superlative = session.query(Superlative.name).all()
+    click.echo(superlative)
 
 def view_user_polls_created(logged_in_user_id):
     click.echo("Getting Polls that this user created")
-
-    # logged_in_user_id = 4
     superlatives = session.query(Superlative).filter(Superlative.author_id == logged_in_user_id)
     
     options = []
@@ -75,12 +85,15 @@ def view_user_polls_created(logged_in_user_id):
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
     print(options[menu_entry_index])
-    type_superlative()
-    # click.echo(f"Selection: {options[menu_entry_index]}!")
+
+    # TO DECIDE WHERE THE NEXT PAGE IS
+
 
 
 def view_polls_user_not_voted():
     click.echo("Getting polls you have not voted on yet")
+
+    # TO WRITE OUT THIS FUNCTION
     click.echo(datetime.now())
 
 def print(value):
