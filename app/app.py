@@ -83,6 +83,8 @@ def select_popular_unvoted():
         selected_superlative_name = options[menu_entry_index]
         selected_superlative_id = menu_entry_index + 1
         vote_on_superlative()
+        summary_table()
+        homepage()
 
 def select_recent_unvoted():
     # get all votes from votes table that were cast for the selected superlative
@@ -182,7 +184,7 @@ def vote_on_superlative():
     session.commit()
 
 def summary_table():
-    superlative_id = 2  # replace with the desired superlative id
+    superlative_id = selected_superlative_id  # replace with the desired superlative id
 
     results = (
         session.query(
@@ -192,6 +194,7 @@ def summary_table():
         .join(Votes, Nominees.id == Votes.nominee_id)
         .filter(Votes.superlative_id == superlative_id)
         .group_by(Nominees.id)
+        .order_by(func.count(Votes.nominee_id).desc())
         .all()
     )
 
@@ -213,5 +216,5 @@ if __name__ == '__main__':
     engine = create_engine('sqlite:///superlatives.db')
     Session = sessionmaker(bind=engine)
     session = Session()
-    # main()
-    summary_table()
+    main()
+    
