@@ -50,7 +50,7 @@ if __name__ == '__main__':
     session.add(superlative_1)
     session.commit()
 
-    superlative_2 = Superlative(name = "Most handsom", author_id = 5, date_expired = date_expired_format)
+    superlative_2 = Superlative(name = "Most handsome", author_id = 5, date_expired = date_expired_format)
     session.add(superlative_2)
     session.commit()
 

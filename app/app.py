@@ -8,8 +8,10 @@ from datetime import datetime
 from tabulate import tabulate
 #models/classes
 from models import User, Nominees, Superlative, Votes
+
 #global variables
 logged_in_user_id = None
+
 #functions
 def login():
     typed_username = click.prompt('Please type your username: ', type=str)
@@ -65,8 +67,9 @@ def select_popular_unvoted():
     options = []
     for superlative, votes in results:
         options.append(f'{superlative}')
-    options.append("***Go Back To Homepage***")
     options.append("***View recent superlatives")
+    options.append("***Go Back To Homepage***")
+
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
@@ -74,9 +77,9 @@ def select_popular_unvoted():
     # table_headers = ["Superlative Name", "Total Votes"]
     # table_data = [[superlative, total_votes] for superlative, total_votes in results]
     # print(tabulate(table_data, headers=table_headers))
-    if menu_entry_index == len(options)-2:
+    if menu_entry_index == len(options)-1:
         homepage()
-    elif menu_entry_index == len(options)-1:
+    elif menu_entry_index == len(options)-2:
         select_recent_unvoted()
     else:
         global selected_superlative_name, selected_superlative_id
@@ -91,11 +94,11 @@ def select_recent_unvoted():
     # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
     click.echo("Here are superlatives that you haven't voted on yet, ranked by most recently created:")
     results = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
-    click.echo(f"{results}")
+    # click.echo(f"{results}")
     options = []
     for superlative in results:
         options.append(f'{superlative.name}')
-    options.append("***Vote on most recent superlatives***")
+    options.append("***Vote on most popular superlatives***")
     options.append("***Go back to the homepage***")
     # click.echo(f"{options}")
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
@@ -106,11 +109,18 @@ def select_recent_unvoted():
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
     click.echo(f"{results}")
-    # if menu_entry_index == len(options)-1:
-    #     homepage()
-    # elif menu_entry_index == len(options)-2:
-    #     select_recent_unvoted()
-    # else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
+    if menu_entry_index == len(options)-1:
+        homepage()
+    elif menu_entry_index == len(options)-2:
+        select_popular_unvoted()
+    else: 
+        global selected_superlative_name, selected_superlative_id
+        selected_superlative_name = options[menu_entry_index]
+        selected_superlative_id = menu_entry_index + 1
+        vote_on_superlative()
+        summary_table()
+        homepage() 
+        vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
     # pass
     # COPY AND PAST CODE FROM RECENTLY UNVOTED WITH CHANAGE TO SORTING
 def vote_on_superlative(superlative_name, superlative_id):
@@ -136,6 +146,8 @@ def view_user_polls_created():
     options.append("***Go back to the homepage***")
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
+    if menu_entry_index == len(options)-1:
+        homepage()
     print(options[menu_entry_index])
     # TO DECIDE WHERE THE NEXT PAGE IS
 def view_polls_user_not_voted():
