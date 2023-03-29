@@ -58,9 +58,9 @@ def create_superlative():
     superlative_1 = Superlative(name = f'{superlative}', author_id = 1)
     session.add(superlative_1)
     session.commit()
-    select_recently_unvoted()
+    select_popular_unvoted()
 
-def select_recently_unvoted():
+def select_popular_unvoted():
     # get all votes from votes table that were cast for the selected superlative
     # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
     click.echo("Here are superlatives that you haven't voted on yet, ranked by most total votes:")
@@ -69,23 +69,52 @@ def select_recently_unvoted():
     options = []
     for superlative, votes in results:
         options.append(f'{superlative}')
+    options.append("***Vote on most recent superlatives***")
     options.append("***Go back to the homepage***")
    
 
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
     # print the results as a table
-    table_headers = ["Superlative Name", "Total Votes"]
-    table_data = [[superlative, total_votes] for superlative, total_votes in results]
-    print(tabulate(table_data, headers=table_headers))
+    # table_headers = ["Superlative Name", "Total Votes"]
+    # table_data = [[superlative, total_votes] for superlative, total_votes in results]
+    # print(tabulate(table_data, headers=table_headers))
 
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
     if menu_entry_index == len(options)-1:
         homepage()    
-    else: vote_on_superlative(superlatives[menu_entry_index], menu_entry_index+1)
+    elif menu_entry_index == len(options)-2:
+        select_recent_unvoted()
+    else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
 
-def select_popular_unvoted():
-    pass
+def select_recent_unvoted():
+    # get all votes from votes table that were cast for the selected superlative
+    # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
+    click.echo("Here are superlatives that you haven't voted on yet, ranked by most recently created:")
+    results = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
+
+    options = []
+    for superlative, votes in results:
+        options.append(f'{superlative}')
+    options.append("***Vote on most recent superlatives***")
+    options.append("***Go back to the homepage***")
+   
+
+    # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
+    # print the results as a table
+    # table_headers = ["Superlative Name", "Total Votes"]
+    # table_data = [[superlative, total_votes] for superlative, total_votes in results]
+    # print(tabulate(table_data, headers=table_headers))
+
+    terminal_menu = TerminalMenu(options)
+    menu_entry_index = terminal_menu.show()
+    if menu_entry_index == len(options)-1:
+        homepage()    
+    elif menu_entry_index == len(options)-2:
+        select_recent_unvoted()
+    else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
+
+    # pass
     # COPY AND PAST CODE FROM RECENTLY UNVOTED WITH CHANAGE TO SORTING
 
 def vote_on_superlative(superlative_name, superlative_id):
