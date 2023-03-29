@@ -35,7 +35,7 @@ def login():
     
 def homepage():
     click.echo("What would you like to do?")
-    options = ["Create Superlative", "View New Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
+    options = ["Create Superlative", "View Popular Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
 
@@ -44,7 +44,7 @@ def homepage():
     if menu_entry_index == 0:
         create_superlative()
     elif menu_entry_index == 1:
-        view_polls_user_not_voted()
+        select_popular_unvoted()
     elif menu_entry_index == 2:
         view_user_polls_created()
     elif menu_entry_index == 3:
@@ -60,30 +60,38 @@ def create_superlative():
     session.commit()
     select_popular_unvoted()
 
+# TRIED TO REFACTOR OUT CREATE TERMINAL
+# def create_terminal(options=[], results = [], penultimate_option=None):
+#     for superlative, votes in results:
+#         options.append(f'{superlative}')
+#     options.append("***Go Back To Homepage***")
+#     if penultimate_option:
+#         options.append({penultimate_option})
+#     terminal_menu = TerminalMenu(options)
+#     menu_entry_index = terminal_menu.show()
+#     return options, menu_entry_index
+
 def select_popular_unvoted():
     # get all votes from votes table that were cast for the selected superlative
-    # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
     click.echo("Here are superlatives that you haven't voted on yet, ranked by most total votes:")
     results = session.query(Superlative.name, func.count(Votes.superlative_id).label('total_votes')).outerjoin(Votes).group_by(Superlative.id).order_by(func.count(Votes.id).desc()).all()
-
+    # Attempted refactoring
     options = []
     for superlative, votes in results:
         options.append(f'{superlative}')
-    options.append("***Vote on most recent superlatives***")
-    options.append("***Go back to the homepage***")
-   
-
+    options.append("***Go Back To Homepage***")
+    options.append("***View recent superlatives")
+    terminal_menu = TerminalMenu(options)
+    menu_entry_index = terminal_menu.show()
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
     # print the results as a table
     # table_headers = ["Superlative Name", "Total Votes"]
     # table_data = [[superlative, total_votes] for superlative, total_votes in results]
     # print(tabulate(table_data, headers=table_headers))
 
-    terminal_menu = TerminalMenu(options)
-    menu_entry_index = terminal_menu.show()
-    if menu_entry_index == len(options)-1:
+    if menu_entry_index == len(options)-2:
         homepage()    
-    elif menu_entry_index == len(options)-2:
+    elif menu_entry_index == len(options)-1:
         select_recent_unvoted()
     else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
 
@@ -92,13 +100,13 @@ def select_recent_unvoted():
     # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
     click.echo("Here are superlatives that you haven't voted on yet, ranked by most recently created:")
     results = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
-
+    click.echo(f"{results}")
     options = []
-    for superlative, votes in results:
-        options.append(f'{superlative}')
+    for superlative in results:
+        options.append(f'{superlative.name}')
     options.append("***Vote on most recent superlatives***")
     options.append("***Go back to the homepage***")
-   
+    # click.echo(f"{options}")
 
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
     # print the results as a table
@@ -108,38 +116,27 @@ def select_recent_unvoted():
 
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
-    if menu_entry_index == len(options)-1:
-        homepage()    
-    elif menu_entry_index == len(options)-2:
-        select_recent_unvoted()
-    else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
+    click.echo(f"{results}")
+    # if menu_entry_index == len(options)-1:
+    #     homepage()    
+    # elif menu_entry_index == len(options)-2:
+    #     select_recent_unvoted()
+    # else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
 
     # pass
     # COPY AND PAST CODE FROM RECENTLY UNVOTED WITH CHANAGE TO SORTING
 
 def vote_on_superlative(superlative_name, superlative_id):
     # KYUSHIK WRITING THIS CODE NOW
-    click.echo(f"{superlative_name, superlative_id}")
+    # click.echo(f"{superlative_name, superlative_id}")
     click.echo(f"Kyushik is doing this part!")
     options = []
     options.append("***Go back to the homepage***")
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
-    if menu_entry_index == len(options)-1:
+    if menu_entry_index == 0:
         homepage()   
 
-
-
-def view_top_superlatives():
-
-    # TO FIX THIS TO IMPORT THE SUPERLATIVES AND THEN FILTER THEM
-    options = [f'{superlative}', "entry 2", "entry 3"]
-    terminal_menu = TerminalMenu(options)
-    menu_entry_index = terminal_menu.show()
-    click.echo(f"You have chosen: {options[menu_entry_index]}!")
-
-    # TO DECIDE WHERE THIS SHOULD ACTUALLY POINT TO
-    homepage()
 
 
 def get_superlative():
@@ -209,9 +206,9 @@ if __name__ == '__main__':
     Session = sessionmaker(bind=engine)
     session = Session()
   
-    # main()
+    main()
 
-    voting_screen()
+    # voting_screen()
 
     
 
