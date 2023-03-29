@@ -15,6 +15,7 @@ from models import User, Nominees, Superlative, Votes
 
 #global variables
 logged_in_user_id = None
+selected_superlative = None
 
 #functions
 def login():
@@ -25,6 +26,7 @@ def login():
     for u in users:
         if u.username == typed_username:
             if u.password == typed_password:
+                global logged_in_user_id 
                 logged_in_user_id = u.id
                 homepage()
                 return  # exit the function once a matching user is found
@@ -46,10 +48,10 @@ def homepage():
     elif menu_entry_index == 1:
         select_popular_unvoted()
     elif menu_entry_index == 2:
-        view_user_polls_created()
+        view_superlatives_created()
     elif menu_entry_index == 3:
-        # view_my_nominations()
-        homepage()
+        view_nominated_for()
+        # homepage()
 
 
 def create_superlative():
@@ -123,47 +125,48 @@ def vote_on_superlative(superlative_name, superlative_id):
     if menu_entry_index == len(options)-1:
         homepage()   
 
-
-
-def view_top_superlatives():
-
-    # TO FIX THIS TO IMPORT THE SUPERLATIVES AND THEN FILTER THEM
-    options = [f'{superlative}', "entry 2", "entry 3"]
-    terminal_menu = TerminalMenu(options)
-    menu_entry_index = terminal_menu.show()
-    click.echo(f"You have chosen: {options[menu_entry_index]}!")
-
-    # TO DECIDE WHERE THIS SHOULD ACTUALLY POINT TO
-    homepage()
-
-
 def get_superlative():
     click.echo("getting superlative...")
     superlative = session.query(Superlative.name).all()
     click.echo(superlative)
 
-def view_user_polls_created():
+def view_superlatives_created():
     click.echo("Getting Polls that this user created")
-    superlatives = session.query(Superlative).filter(Superlative.author_id == logged_in_user_id)
-    
-    options = []
-
-    for superlative in superlatives:
-        options.append(f'{superlative.name}')
-    options.append("***Go back to the homepage***")
-    terminal_menu = TerminalMenu(options)
+    click.echo(f"{logged_in_user_id}")
+    superlatives = session.query(Superlative).filter(Superlative.author_id == logged_in_user_id).order_by(Superlative.date_created.desc()).all()
+    # results = session.query(Superlative.name, func.count(Votes.superlative_id).label('total_votes')).outerjoin(Votes).group_by(Superlative.id).order_by(func.count(Votes.id).desc()).all()
+    click.echo(f"{superlatives}")
+     # get all votes from votes table that were cast for the selected superlative
+    click.echo("Here are superlatives that you have created, ranked by most recent")
+    table_headers = ["Superlative Name", "Date Created"]
+    table_data = [[s.name, s.date_created] for s in superlatives]
+    print(tabulate(table_data, headers=table_headers))
+    terminal_menu = TerminalMenu(["***Go back to the homepage***"])
     menu_entry_index = terminal_menu.show()
-    print(options[menu_entry_index])
+    if menu_entry_index == 0:
+        homepage()    
 
-    # TO DECIDE WHERE THE NEXT PAGE IS
+def view_nominated_for():
+    click.echo("Getting Polls that you are nominated_for")
+    # click.echo(f"{selected_superlative}")
+    # NEED A JOIN TABLE!
+    superlatives = session.query(Superlative).join(Votes, Superlative.id == Votes.superlative_id).filter(Votes.nominee_id == logged_in_user_id).all()
+        # .order_by(Superlative.date_created.desc()).all()
+    click.echo(f"{superlatives}")
+    superlatives_set = set([superlative.name for superlative in superlatives])
+    # STRETCH GOAL: GROUP COUNTS OF VOTES
+    # results = session.query(Superlative.name, func.count(Votes.superlative_id).label('total_votes')).outerjoin(Votes).group_by(Superlative.id).order_by(func.count(Votes.id).desc()).all()
+     # get all votes from votes table that were cast for the selected superlative
+    click.echo("Here are superlatives that you are nominated for:")
+    table_headers = ["Superlative Name"]
+    table_data = [[s.name, s.date_created] for s in superlatives]
+    print(tabulate(table_data, headers=table_headers))
 
+    terminal_menu = TerminalMenu(["***Go back to the homepage***"])
+    menu_entry_index = terminal_menu.show()
+    if menu_entry_index == 0:
+        homepage()    
 
-
-def view_polls_user_not_voted():
-    click.echo("Getting polls you have not voted on yet")
-
-    # TO WRITE OUT THIS FUNCTION
-    click.echo(datetime.now())
 
 def print(value):
     click.echo(value)
