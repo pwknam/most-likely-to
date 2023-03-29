@@ -10,6 +10,10 @@ from datetime import datetime
 #models/classes
 from models import User, Nominees, Superlative, Votes
 
+##fix logged_in user id
+
+#global variables
+
 
 #functions
 def login():
@@ -21,14 +25,14 @@ def login():
         if u.username == typed_username:
             if u.password == typed_password:
                 user_id = u.id
-                options_list(user_id)
+                homepage(user_id)
                 return  # exit the function once a matching user is found
     # display error message only after checking all users in the database
     click.echo("Incorrect username/password combo. Please try again!")
     login()
 
     
-def options_list(logged_in_user_id):
+def homepage(logged_in_user_id):
     click.echo("What would you like to do?")
     options = ["Create Superlative", "View New Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
     terminal_menu = TerminalMenu(options)
@@ -42,7 +46,8 @@ def options_list(logged_in_user_id):
     elif menu_entry_index == 2:
         view_user_polls_created(logged_in_user_id)
     elif menu_entry_index == 3:
-        view_my_nominations()
+        # view_my_nominations()
+        pass
     click.echo(f"You have chosen: {options[menu_entry_index]}!")
 
 def create_superlative():
@@ -53,7 +58,7 @@ def create_superlative():
     session.commit()
 
     # TO DECIDE WHERE THIS SHOULD ACTUALLY POINT TO
-    options_list()
+    homepage()
 
 
 def view_top_superlatives():
@@ -107,10 +112,7 @@ def print(value):
 @click.command()
 def main():
     login()
-    # type_superlative()
-    # get_superlative()
-    # view_user_polls_created()
-    # view_polls_user_not_voted()
+    
 
 
 
