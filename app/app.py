@@ -35,7 +35,7 @@ def login():
     
 def homepage():
     click.echo("What would you like to do?")
-    options = ["Create Superlative", "View Popular Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
+    options = ["Create Superlative", "View New Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
 
@@ -44,7 +44,7 @@ def homepage():
     if menu_entry_index == 0:
         create_superlative()
     elif menu_entry_index == 1:
-        select_popular_unvoted()
+        view_polls_user_not_voted()
     elif menu_entry_index == 2:
         view_user_polls_created()
     elif menu_entry_index == 3:
@@ -72,6 +72,7 @@ def select_popular_unvoted():
     options.append("***Vote on most recent superlatives***")
     options.append("***Go back to the homepage***")
    
+
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
     # print the results as a table
     # table_headers = ["Superlative Name", "Total Votes"]
@@ -88,15 +89,17 @@ def select_popular_unvoted():
 
 def select_recent_unvoted():
     # get all votes from votes table that were cast for the selected superlative
-    click.echo("Here are superlatives that you haven't voted on yet, ranked by most recent:")
-    superlatives = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
-                # .all()
+    # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
+    click.echo("Here are superlatives that you haven't voted on yet, ranked by most recently created:")
+    results = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
+
     options = []
-    for superlative in superlatives:
-        options.append(f'{superlative.name}')
-    options.append("***Vote on most popular superlatives***")
+    for superlative, votes in results:
+        options.append(f'{superlative}')
+    options.append("***Vote on most recent superlatives***")
     options.append("***Go back to the homepage***")
    
+
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
     # print the results as a table
     # table_headers = ["Superlative Name", "Total Votes"]
@@ -108,9 +111,11 @@ def select_recent_unvoted():
     if menu_entry_index == len(options)-1:
         homepage()    
     elif menu_entry_index == len(options)-2:
-        select_popular_unvoted()
+        select_recent_unvoted()
     else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
 
+    # pass
+    # COPY AND PAST CODE FROM RECENTLY UNVOTED WITH CHANAGE TO SORTING
 
 def vote_on_superlative(superlative_name, superlative_id):
     # KYUSHIK WRITING THIS CODE NOW
@@ -168,8 +173,27 @@ def view_polls_user_not_voted():
 def print(value):
     click.echo(value)
 
+def voting_screen():
+    voting_options = []
+    users = session.query(Nominees.name).all()
+    for user in users:
+        voting_options.append(user[0].title())
+    
+    terminal_menu = TerminalMenu(voting_options)
+    click.echo("Superlative Name")
+    menu_entry_index = terminal_menu.show()
 
+    selected_nominee_id = session.query(Nominees.id).filter(Nominees.name == voting_options[menu_entry_index].lower()).first()
 
+    new_vote = Votes(voter_id = logged_in_user_id, superlative_id = 1, nominee_id = selected_nominee_id[0])
+
+    click.echo(f'You voted {voting_options[menu_entry_index]} for this particular Superlative')
+
+    session.add(new_vote)
+    session.commit()
+    
+
+     
 
 
 #main function
@@ -185,4 +209,17 @@ if __name__ == '__main__':
     Session = sessionmaker(bind=engine)
     session = Session()
   
-    main()
+    # main()
+
+    voting_screen()
+
+    
+
+    # selected_superlative = session.query(Superlative).filter(Superlative.name == "Best Dressed").first()
+    # def view_leaderboard_for_selected_superlative(selected_superlative):
+    #     click.echo(selected_superlative.name)
+    #     nominees = session.query(Votes.nominee_id).filter(Votes.superlative_id == selected_superlative.id).all()
+    #     nominee_ids = [nominee[0] for nominee in nominees]
+    #     click.echo(nominee_ids)
+
+    # view_leaderboard_for_selected_superlative(selected_superlative)
