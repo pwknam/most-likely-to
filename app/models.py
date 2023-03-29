@@ -37,7 +37,9 @@ class Superlative(Base):
     name = Column(String())
     author_id = Column(Integer(), ForeignKey('users.id'))
     date_created = Column(DateTime(), server_default=func.now())
-    date_expired = Column(DateTime(), server_default=func.now())
+    # date_expired = Column(DateTime(), server_default=func.date_add(date_created, func.interval(7, 'day')))
+    date_expired = Column(DateTime())
+
 
     superlative_votes = relationship('Votes', backref=backref('superlative'))
 
