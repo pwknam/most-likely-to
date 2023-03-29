@@ -15,15 +15,21 @@ from models import User, Nominees, Superlative, Votes
 
 def type_superlative():
     superlative = click.prompt('Please state your superlative: ', type=str)
-   
+    click.echo(f"You have written: {superlative}. Here are the superlatives you can vote on:")
     options = [f'{superlative}', "entry 2", "entry 3"]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
-    click.echo(f"You have written: {options[menu_entry_index]}!")
+    # click.echo(f"You have written: {options[menu_entry_index]}!")
 
+    date_expired_str = '2023-04-8'
+    date_expired_format = datetime.strptime(date_expired_str, '%Y-%m-%d')
     superlative_1 = Superlative(name = f'{superlative}', author_id = 1)
     session.add(superlative_1)
+
+    # MY COMMIT ISNT WORKING FOR SOME REASON, PLZ HELP!
     session.commit()
+
+    view_user_polls_created()
 
 
 def get_superlative():
@@ -32,12 +38,33 @@ def get_superlative():
     click.echo(superlative)
 
 def login():
-    pass
+    user_id = None
+    typed_username = click.prompt('Please type your username: ', type=str)
+    typed_password = click.prompt('Please type your password: ', type=str)
+    users = session.query(User).all()
+    for u in users:
+        if u.username == typed_username:
+            if u.password == typed_password:
+                user_id = u.id
+                options_list(user_id)
+                return  # exit the function once a matching user is found
+    # display error message only after checking all users in the database
+    click.echo("Incorrect username/password combo. Please try again!")
+    login()
 
-def view_user_polls_created():
+    
+def options_list(logged_in_user_id):
+    click.echo("What would you like to do?")
+    options = ["Create Superlative", "View Superlatives", "View My Superlatives", "View What I've Been Nominated For"]
+    terminal_menu = TerminalMenu(options)
+    menu_entry_index = terminal_menu.show()
+    print(options[menu_entry_index])
+    click.echo(f"You have chosen: {options[menu_entry_index]}!")
+
+def view_user_polls_created(logged_in_user_id):
     click.echo("Getting Polls that this user created")
 
-    logged_in_user_id = 4
+    # logged_in_user_id = 4
     superlatives = session.query(Superlative).filter(Superlative.author_id == logged_in_user_id)
     
     options = []
@@ -66,9 +93,10 @@ def print(value):
 #main function
 @click.command()
 def main():
+    login()
     # type_superlative()
     # get_superlative()
-    view_user_polls_created()
+    # view_user_polls_created()
     # view_polls_user_not_voted()
 
 
