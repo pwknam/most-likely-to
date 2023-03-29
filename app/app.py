@@ -35,7 +35,7 @@ def login():
     
 def homepage():
     click.echo("What would you like to do?")
-    options = ["Create Superlative", "View New Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
+    options = ["Create Superlative", "View Popular Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
 
@@ -44,7 +44,7 @@ def homepage():
     if menu_entry_index == 0:
         create_superlative()
     elif menu_entry_index == 1:
-        view_polls_user_not_voted()
+        select_popular_unvoted()
     elif menu_entry_index == 2:
         view_user_polls_created()
     elif menu_entry_index == 3:
@@ -72,7 +72,6 @@ def select_popular_unvoted():
     options.append("***Vote on most recent superlatives***")
     options.append("***Go back to the homepage***")
    
-
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
     # print the results as a table
     # table_headers = ["Superlative Name", "Total Votes"]
@@ -89,17 +88,15 @@ def select_popular_unvoted():
 
 def select_recent_unvoted():
     # get all votes from votes table that were cast for the selected superlative
-    # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
-    click.echo("Here are superlatives that you haven't voted on yet, ranked by most recently created:")
-    results = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
-
+    click.echo("Here are superlatives that you haven't voted on yet, ranked by most recent:")
+    superlatives = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
+                # .all()
     options = []
-    for superlative, votes in results:
-        options.append(f'{superlative}')
-    options.append("***Vote on most recent superlatives***")
+    for superlative in superlatives:
+        options.append(f'{superlative.name}')
+    options.append("***Vote on most popular superlatives***")
     options.append("***Go back to the homepage***")
    
-
     # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
     # print the results as a table
     # table_headers = ["Superlative Name", "Total Votes"]
@@ -111,11 +108,9 @@ def select_recent_unvoted():
     if menu_entry_index == len(options)-1:
         homepage()    
     elif menu_entry_index == len(options)-2:
-        select_recent_unvoted()
+        select_popular_unvoted()
     else: vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
 
-    # pass
-    # COPY AND PAST CODE FROM RECENTLY UNVOTED WITH CHANAGE TO SORTING
 
 def vote_on_superlative(superlative_name, superlative_id):
     # KYUSHIK WRITING THIS CODE NOW
