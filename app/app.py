@@ -181,6 +181,24 @@ def vote_on_superlative():
     session.add(new_vote)
     session.commit()
 
+def summary_table():
+    superlative_id = 2  # replace with the desired superlative id
+
+    results = (
+        session.query(
+            Nominees.name,
+            func.count(Votes.nominee_id).label('vote_count')
+        )
+        .join(Votes, Nominees.id == Votes.nominee_id)
+        .filter(Votes.superlative_id == superlative_id)
+        .group_by(Nominees.id)
+        .all()
+    )
+
+    table_data = [[name.title(), vote_count] for name, vote_count in results]
+
+    click.echo(tabulate(table_data, headers=['Nominee Name', 'Vote Count'], tablefmt='orgtbl'))
+
 
 
 
@@ -195,4 +213,5 @@ if __name__ == '__main__':
     engine = create_engine('sqlite:///superlatives.db')
     Session = sessionmaker(bind=engine)
     session = Session()
-    main()
+    # main()
+    summary_table()

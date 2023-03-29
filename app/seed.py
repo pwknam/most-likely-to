@@ -78,11 +78,11 @@ if __name__ == '__main__':
     session.add(vote_2)
     session.commit()
 
-    vote_3 = Votes(voter_id = 3, superlative_id = 2, nominee_id = 5)
+    vote_3 = Votes(voter_id = 3, superlative_id = 2, nominee_id = 9)
     session.add(vote_3)
     session.commit()
 
-    vote_4 = Votes(voter_id = 4, superlative_id = 2, nominee_id = 5)
+    vote_4 = Votes(voter_id = 4, superlative_id = 2, nominee_id = 7)
     session.add(vote_4)
     session.commit()
 
@@ -94,11 +94,11 @@ if __name__ == '__main__':
     session.add(vote_6)
     session.commit()
 
-    vote_7 = Votes(voter_id = 9, superlative_id = 3, nominee_id = 1)
+    vote_7 = Votes(voter_id = 9, superlative_id = 3, nominee_id = 2)
     session.add(vote_7)
     session.commit()
 
-    vote_8 = Votes(voter_id = 7, superlative_id = 3, nominee_id = 1)
+    vote_8 = Votes(voter_id = 7, superlative_id = 3, nominee_id = 2)
     session.add(vote_8)
     session.commit()
 
