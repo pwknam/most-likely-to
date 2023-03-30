@@ -107,7 +107,7 @@ def select_popular_unvoted():
     else:
         global selected_superlative_name, selected_superlative_id
         selected_superlative_name = options[menu_entry_index]
-        selected_superlative_id = menu_entry_index + 1
+        selected_superlative_id = menu_entry_index + 2
         # vote_on_superlative()
         # summary_table()
         # homepage() 
@@ -150,7 +150,7 @@ def select_recent_unvoted():
     else: 
         global selected_superlative_name, selected_superlative_id
         selected_superlative_name = options[menu_entry_index]
-        selected_superlative_id = menu_entry_index + 1
+        selected_superlative_id = menu_entry_index + 2
         vote_on_superlative()
         summary_table()
         homepage() 
@@ -278,7 +278,7 @@ def vote_on_superlative():
 
     selected_nominee_id = session.query(Nominees.id).filter(Nominees.name == voting_options[menu_entry_index].lower()).first()
 
-    new_vote = Votes(voter_id = logged_in_user_id, superlative_id = selected_superlative_id + 1, nominee_id = selected_nominee_id[0])
+    new_vote = Votes(voter_id = logged_in_user_id, superlative_id = selected_superlative_id, nominee_id = selected_nominee_id[0])
 
     click.echo(f'You voted {voting_options[menu_entry_index]} for this particular superlative')
 
