@@ -278,7 +278,7 @@ def vote_on_superlative():
 
     selected_nominee_id = session.query(Nominees.id).filter(Nominees.name == voting_options[menu_entry_index].lower()).first()
 
-    new_vote = Votes(voter_id = logged_in_user_id, superlative_id = selected_superlative_id, nominee_id = selected_nominee_id[0])
+    new_vote = Votes(voter_id = logged_in_user_id, superlative_id = selected_superlative_id + 1, nominee_id = selected_nominee_id[0])
 
     click.echo(f'You voted {voting_options[menu_entry_index]} for this particular superlative')
 
