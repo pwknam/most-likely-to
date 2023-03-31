@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey, Table, Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('sqlite:///superlatives.db')
+engine = create_engine('mysql://avnadmin:AVNS_2Cqf4NGN6xZwnAyCV2w@mysql-251abb6c-mchoi4194-84fd.aivencloud.com:14616/defaultdb?ssl-mode=REQUIRED')
 
 Base = declarative_base()
 

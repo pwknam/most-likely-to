@@ -253,7 +253,7 @@ def vote_on_superlative():
 def main():
     login()
 if __name__ == '__main__':
-    engine = create_engine('sqlite:///superlatives.db')
+    engine = create_engine('postgres://superlatives_db_user:U2xSDYmvOcLJECHAoM3GlKORXb5U8TXl@dpg-cgjfaeu4dadak452v50g-a.oregon-postgres.render.com/superlatives_db')
     Session = sessionmaker(bind=engine)
     session = Session()
     main()
