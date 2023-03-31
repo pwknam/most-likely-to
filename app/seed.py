@@ -5,7 +5,7 @@ from datetime import datetime
 from models import User, Nominees, Superlative, Votes
 
 if __name__ == '__main__':
-    engine = create_engine('mysql://avnadmin:AVNS_2Cqf4NGN6xZwnAyCV2w@mysql-251abb6c-mchoi4194-84fd.aivencloud.com:14616/defaultdb?ssl-mode=REQUIRED')
+    engine = create_engine('sqlite:///superlatives.db')
     Session = sessionmaker(bind=engine)
     session = Session()
 
