@@ -5,7 +5,7 @@ from datetime import datetime
 from models import User, Nominees, Superlative, Votes
 
 if __name__ == '__main__':
-    engine = create_engine('sqlite:///superlatives.db')
+    engine = create_engine('mysql://avnadmin:AVNS_2Cqf4NGN6xZwnAyCV2w@mysql-251abb6c-mchoi4194-84fd.aivencloud.com:14616/defaultdb?ssl-mode=REQUIRED')
     Session = sessionmaker(bind=engine)
     session = Session()
 
@@ -32,6 +32,7 @@ if __name__ == '__main__':
         {'username': "ian", 'password': 'i'},
         {'username': "eshwar", 'password': 'e'},
         {'username': "chrisw", 'password': 'w'},
+        {'username': "none", 'password': 'n'}
     ]
 
     for person in people:
@@ -46,69 +47,50 @@ if __name__ == '__main__':
 
     date_expired_str = '2023-03-9'
     date_expired_format = datetime.strptime(date_expired_str, '%Y-%m-%d')
-    superlative_1 = Superlative(name = "Best Dressed.", author_id = 1, date_expired = date_expired_format)
+    superlative_1 = Superlative(name = "Most likely to get hit by a pick up truck and survive.", author_id = 4, date_expired = date_expired_format)
     session.add(superlative_1)
     session.commit()
 
-    superlative_2 = Superlative(name = "Most handsome.", author_id = 2, date_expired = date_expired_format)
-    session.add(superlative_2)
+    superlative_9 = Superlative(name = "Best video game player.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_9)
     session.commit()
 
-    superlative_3 = Superlative(name = "Most beautiful.", author_id = 3, date_expired = date_expired_format)
+    superlative_10 = Superlative(name = "Most likely to become famous.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_10)
+    session.commit()
+
+    superlative_3 = Superlative(name = "Most likely to get build a time traveling machine, then use it to travel back in time to live with dinosaurs.", author_id = 4, date_expired = date_expired_format)
     session.add(superlative_3)
     session.commit()
 
-    # superlative_4 = Superlative(name = "Most likely to become president.", author_id = 4, date_expired = date_expired_format)
-    # session.add(superlative_4)
-    # session.commit()
+    superlative_15 = Superlative(name = "Least likely to come back and teach at Flatiron.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_15)
+    session.commit()
 
-    # superlative_5 = Superlative(name = "Most likely to become rich.", author_id = 5, date_expired = date_expired_format)
-    # session.add(superlative_5)
-    # session.commit()
+    superlative_4 = Superlative(name = "Most likely to get chased by an ostrich after failing to comply by zoo visiting rules.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_4)
+    session.commit()
 
-    # superlative_6 = Superlative(name = "Most likely to become a doctor.", author_id = 6, date_expired = date_expired_format)
-    # session.add(superlative_6)
-    # session.commit()
+    superlative_5 = Superlative(name = "Most likely to BECOME a gajillionaire.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_5)
+    session.commit()
 
-    # superlative_7 = Superlative(name = "Most likely to MARRY rich.", author_id = 7, date_expired = date_expired_format)
-    # session.add(superlative_7)
-    # session.commit()
+    superlative_8 = Superlative(name = "Most likely to MARRY a gajillionaire.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_8)
+    session.commit()
 
-    # superlative_8 = Superlative(name = "Smartest - best coder.", author_id = 8, date_expired = date_expired_format)
-    # session.add(superlative_8)
-    # session.commit()
 
-    # superlative_9 = Superlative(name = "Most likely to quit coding after this bootcamp.", author_id = 9, date_expired = date_expired_format)
-    # session.add(superlative_9)
-    # session.commit()
+    superlative_6 = Superlative(name = "Sally's bestfriend.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_6)
+    session.commit()
 
-    # superlative_10 = Superlative(name = "Best singer.", author_id = 10, date_expired = date_expired_format)
-    # session.add(superlative_10)
-    # session.commit()
+    superlative_7 = Superlative(name = "Most likely to quit coding after this bootcamp", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_7)
+    session.commit()
 
-    # superlative_11 = Superlative(name = "Best video game player.", author_id = 11, date_expired = date_expired_format)
-    # session.add(superlative_11)
-    # session.commit()
-
-    # superlative_12 = Superlative(name = "Best athlete.", author_id = 12, date_expired = date_expired_format)
-    # session.add(superlative_12)
-    # session.commit()
-
-    # superlative_13 = Superlative(name = "Best chef.", author_id = 13, date_expired = date_expired_format)
-    # session.add(superlative_13)
-    # session.commit()
-
-    # superlative_14 = Superlative(name = "Most likely to go back to gradute school.", author_id = 14, date_expired = date_expired_format)
-    # session.add(superlative_14)
-    # session.commit()
-
-    # superlative_15 = Superlative(name = "Most likely to come back and teach.", author_id = 15, date_expired = date_expired_format)
-    # session.add(superlative_15)
-    # session.commit()
-
-    # superlative_16 = Superlative(name = "Most likely to become famous.", author_id = 16, date_expired = date_expired_format)
-    # session.add(superlative_16)
-    # session.commit()
+    superlative_2 = Superlative(name = "Most likely to win a prize in an absolutely useless contest. Kyushik will take whoever wins this out to lunch.", author_id = 4, date_expired = date_expired_format)
+    session.add(superlative_2)
+    session.commit()
 
     # superlative_17 = Superlative(name = "Sally's bestfriend.", author_id = 17, date_expired = date_expired_format)
     # session.add(superlative_17)
@@ -184,7 +166,6 @@ if __name__ == '__main__':
     # session.commit()
 
     
-
 
 
 
