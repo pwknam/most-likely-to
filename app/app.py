@@ -8,9 +8,10 @@ from datetime import datetime
 from tabulate import tabulate
 #models/classes
 from models import User, Nominees, Superlative, Votes
+from sqlalchemy import and_
 
 #global variables
-
+logged_in_user_id = None
 
 #functions
 def login():
@@ -30,7 +31,7 @@ def login():
 
 def homepage():
     click.echo("What would you like to do?")
-    options = ["Create Superlative", "View Popular Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
+    options = ["Create Superlative", "Vote on Superlatives", "View Superlatives I've Created", "View What I've Been Nominated For"]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
     click.echo(f"You have chosen: {options[menu_entry_index]}!")
@@ -47,102 +48,82 @@ def homepage():
 def create_superlative():
     superlative = click.prompt('Please state your superlative: ', type=str)
     click.echo(f"You have written: {superlative}.")
-    date_expired_str = '2023-04-9'
-    date_expired_format = datetime.strptime(date_expired_str, '%Y-%m-%d')
-    superlative_1 = Superlative(name = f'{superlative}', author_id = logged_in_user_id, date_expired = date_expired_format)
+    superlative_1 = Superlative(name = f'{superlative}', author_id = logged_in_user_id)
     session.add(superlative_1)
     session.commit()
     select_popular_unvoted()
-# TRIED TO REFACTOR OUT CREATE TERMINAL
-# def create_terminal(options=[], results = [], penultimate_option=None):
-#     for superlative, votes in results:
-#         options.append(f'{superlative}')
-#     options.append("***Go Back To Homepage***")
-#     if penultimate_option:
-#         options.append({penultimate_option})
-#     terminal_menu = TerminalMenu(options)
-#     menu_entry_index = terminal_menu.show()
-#     return options, menu_entry_index
+
 def select_popular_unvoted():
-    # get all votes from votes table that were cast for the selected superlative
-    click.echo("Here are superlatives that you haven't voted on yet, ranked by most total votes:")
 
-      # NEED TO FIX THIS TO MAKE IT FILTER BY NOT VOTED ON
 
-    # results = session.query(Superlative.name, func.count(Votes.superlative_id).label('total_votes')).outerjoin(Votes).group_by(Superlative.id).order_by(func.count(Votes.id).desc()).all()
-    # Attempted refactoring
+    # get all superlatives with no votes cast by the logged in user, sorted by popularity
+    query = (
+        session.query(Superlative.name, Superlative.id, func.count(Votes.id).label('vote_count'))
+        .outerjoin(Votes, and_(Superlative.id == Votes.superlative_id, Votes.voter_id == logged_in_user_id))
+        .group_by(Superlative.id)
+        .having(func.count(Votes.id) == 0)
+        .order_by(func.count(Votes.id).desc().nullslast(), Superlative.name)
+    )
 
-    # results = session.query(Superlative.name, func.count(Votes.superlative_id).label('total_votes'))\
-    #              .outerjoin(Votes)\
-    #              .filter(Votes.voter_id != logged_in_user_id)\
-    #              .group_by(Superlative.id)\
-    #              .order_by(func.count(Votes.id).desc())\
-    #              .all()
-    
-    # options = []
+    results = query.all()
 
-    unvoted_superlatives = session.query(Superlative)\
-                                 .filter(~Superlative.id.in_(
-                                     session.query(Votes.superlative_id)\
-                                            .filter(Votes.voter_id == logged_in_user_id)
-                                 ))\
-                                 .all()
-    options = [superlative.name for superlative in unvoted_superlatives]
-    # for superlative, votes in results:
-    #     options.append(f'{superlative}')
-    options.append("***View recent superlatives")
+    superlatives = [result[0] for result in results]
+    # ids = [result[1] for result in results]
+    options = []  # Use a list to store options in the order returned by the query
+
+    for superlative in superlatives:
+        options.append(f'{superlative}')  # Add each option to the list
+
+
     options.append("***Go Back To Homepage***")
-
+    options.append("***View recent superlatives***")
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
-    # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
-    # print the results as a table
-    # table_headers = ["Superlative Name", "Total Votes"]
-    # table_data = [[superlative, total_votes] for superlative, total_votes in results]
-    # print(tabulate(table_data, headers=table_headers))
-    if menu_entry_index == len(options)-1:
+
+    if menu_entry_index == len(options)-2:
         homepage()
-    elif menu_entry_index == len(options)-2:
+    elif menu_entry_index == len(options)-1:
         select_recent_unvoted()
     else:
         global selected_superlative_name, selected_superlative_id
         selected_superlative_name = options[menu_entry_index]
-        selected_superlative_id = menu_entry_index + 2
-        # vote_on_superlative()
-        # summary_table()
-        # homepage() 
+        selected_superlative_id = results[menu_entry_index][1]
         vote_on_superlative()
-        summary_table()
-        homepage()
+
+        
 def select_recent_unvoted():
     # get all votes from votes table that were cast for the selected superlative
-    # results = session.query(Superlative, Votes).filter(Superlative.id == Votes.superlative_id).all()
     click.echo("Here are superlatives that you haven't voted on yet, ranked by most recently created:")
-    
-    # NEED TO FIX THIS TO MAKE IT FILTER BY NOT VOTED ON
-    # results = session.query(Superlative).order_by(Superlative.date_created.desc()).all()
-    # # click.echo(f"{results}")
-    # options = []
-    # for superlative in results:
-    #     options.append(f'{superlative.name}')
-    unvoted_superlatives = session.query(Superlative)\
-                                 .filter(~Superlative.id.in_(
-                                     session.query(Votes.superlative_id)\
-                                            .filter(Votes.voter_id == logged_in_user_id)
-                                 ))\
-                                 .order_by(Superlative.date_created.desc()).all()
-    options = [superlative.name for superlative in unvoted_superlatives]
-    options.append("***Vote on most popular superlatives***")
-    options.append("***Go back to the homepage***")
-    # click.echo(f"{options}")
-    # THIS IS IF YOU WANT TO SEE THE DATA IN THE TABLE:
-    # print the results as a table
-    # table_headers = ["Superlative Name", "Total Votes"]
-    # table_data = [[superlative, total_votes] for superlative, total_votes in results]
-    # print(tabulate(table_data, headers=table_headers))
+    subquery = (
+        session.query(
+            Votes.superlative_id,
+            # func.max(Votes.date_created).label('date_created')
+        )
+        .group_by(Votes.superlative_id)
+        .subquery()
+    )
+
+    superlatives = (
+        session.query(Superlative.name, Superlative.id)
+        .outerjoin(subquery, Superlative.id == subquery.c.superlative_id)
+        .outerjoin(Votes, and_(Superlative.id == Votes.superlative_id, Votes.voter_id == logged_in_user_id))
+        .filter(Votes.id == None)
+        .order_by(Superlative.date_created.desc())
+    )
+
+    options = []
+    ids = []
+    for superlative_name, superlative_id in superlatives:
+        options.append(superlative_name)
+        ids.append(superlative_id)
+
+    options.append("***View all superlatives")
+    options.append("***Go back to homepage***")
+
+
+
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
-    # click.echo(f"{results}")
     if menu_entry_index == len(options)-1:
         homepage()
     elif menu_entry_index == len(options)-2:
@@ -150,10 +131,8 @@ def select_recent_unvoted():
     else: 
         global selected_superlative_name, selected_superlative_id
         selected_superlative_name = options[menu_entry_index]
-        selected_superlative_id = menu_entry_index + 2
+        selected_superlative_id = ids[menu_entry_index]
         vote_on_superlative()
-        summary_table()
-        homepage() 
         # vote_on_superlative(options[menu_entry_index], menu_entry_index+1)
     # pass
     # COPY AND PAST CODE FROM RECENTLY UNVOTED WITH CHANAGE TO SORTING
@@ -164,19 +143,19 @@ def get_superlative():
     click.echo(superlative)
 
 def view_user_polls_created():
+    click.echo("Getting Polls that you created")
     superlatives = session.query(Superlative).filter(Superlative.author_id == logged_in_user_id)
-    # click.echo(f"{logged_in_user_id}")
 
-    options = []
-    
+    options = set()  # Use a set to store unique options
     for superlative in superlatives:
-        options.append(f'{superlative.name}')
+        options.add(superlative.name)  # Add each option to the set
     if len(options) == 0:
-        click.echo(f"You have not created any superlatives.")
-        
+        click.echo("You have not created any superlatives.")
+
     table_headers = ["Superlative Name"]
-    table_data = [[option] for option in options]
-    click.echo(tabulate(table_data, headers=table_headers))
+    table_data = [[option] for option in options]  # Create a list of lists with one option per inner list
+    print(tabulate(table_data, headers=table_headers, tablefmt='orgtbl'))
+
      
     # options.append()
     terminal_menu = TerminalMenu(["***Go back to the homepage***"])
@@ -185,6 +164,7 @@ def view_user_polls_created():
         homepage()
 
 def view_my_nominations():
+    click.echo("Getting Polls that you are nominated for")
     # WORKING HERE
     merged_data = session.query(Superlative, Votes)\
                         .join(Votes, Superlative.id == Votes.superlative_id)\
@@ -193,47 +173,27 @@ def view_my_nominations():
     # click.echo(f"{logged_in_user_id}")
     if not merged_data:
         click.echo(f"You have not been nominated for any superlatives.")
-    options = []
-    for superlative, vote in merged_data:
-        if superlative.name not in options:
-            options.append(f'{superlative.name}')
+    # options = []
+    # for superlative, vote in merged_data:
+    #     options.append(f'{superlative.name}')
 
-    # print the results as a table
-    table_headers = ["Superlative Nominations"]
+    # # print the results as a table
+    # table_headers = ["Superlative Name"]
     # table_data = set(options)
-    table_data = [[option] for option in options]
-    click.echo(tabulate(table_data, headers=table_headers))
-
-    click.echo("")
-
-
-    expired_superlatives = session.query(Superlative)\
-                              .filter(Superlative.date_expired <= datetime.now())\
-                              .all()
-
-# for each expired superlative, get the nominee with the highest number of votes
-    results = []
-    for superlative in expired_superlatives:
-        nominee_votes = session.query(Votes.nominee_id, func.count(Votes.id))\
-                           .filter(Votes.superlative_id == superlative.id)\
-                           .group_by(Votes.nominee_id)\
-                           .order_by(func.count(Votes.id))\
-                           .all()
-
-        if nominee_votes:
-        # get the nominee(s) with the highest number of votes
-            highest_voted_nominees = [nominee_vote[0] for nominee_vote in nominee_votes if nominee_vote[1] == nominee_votes[-1][1]]
-        # check if any of the highest voted nominees is equal to logged_in_user_id
-            if logged_in_user_id in highest_voted_nominees:
-                results.append([superlative.name, nominee_votes[-1][1]])
-
-# display results in a table
-    if results:
-        print(tabulate(results, headers=["Superlative Decisions", "Number of Votes"]))
-    else:
-        print("No expired superlatives with highest voted nominee equal to the logged in user.")
-
+    # print(tabulate(table_data, headers=table_headers))
      
+    
+    options = set()  # Use a set to store unique options
+    for superlative, v in merged_data:
+        options.add(superlative.name)  # Add each option to the set
+    if len(options) == 0:
+        click.echo("You have not created any superlatives.")
+
+
+    table_headers = ["Superlative Name"]
+    table_data = [[option] for option in options]  # Create a list of lists with one option per inner list
+    print(tabulate(table_data, headers=table_headers, tablefmt='orgtbl'))
+
     # options.append()
     terminal_menu = TerminalMenu(["***Go back to the homepage***"])
     menu_entry_index = terminal_menu.show()
@@ -242,6 +202,7 @@ def view_my_nominations():
     
 
 def view_polls_user_not_voted():
+    click.echo("Getting polls you have not voted on yet")
     # TO WRITE OUT THIS FUNCTION
     click.echo(datetime.now())
 
@@ -280,10 +241,13 @@ def vote_on_superlative():
 
     new_vote = Votes(voter_id = logged_in_user_id, superlative_id = selected_superlative_id, nominee_id = selected_nominee_id[0])
 
-    click.echo(f'You voted {voting_options[menu_entry_index]} for this particular superlative')
+    click.echo(f'You voted {voting_options[menu_entry_index]} for this particular Superlative')
 
     session.add(new_vote)
     session.commit()
+    summary_table()
+    homepage()
+
 #main function
 @click.command()
 def main():
@@ -293,4 +257,12 @@ if __name__ == '__main__':
     Session = sessionmaker(bind=engine)
     session = Session()
     main()
-    
+    # selected_superlative = session.query(Superlative).filter(Superlative.name == "Best Dressed").first()
+    # voting_screen()
+
+def view_leaderboard_for_selected_superlative(selected_superlative):
+    click.echo(selected_superlative.name)
+    nominees = session.query(Votes.nominee_id).filter(Votes.superlative_id == selected_superlative.id).all()
+    nominee_ids = [nominee[0] for nominee in nominees]
+    click.echo(nominee_ids)
+    # view_leaderboard_for_selected_superlative(selected_superlative)
